@@ -1,6 +1,6 @@
 {
     "type": "package",
-    "name": "erosson/elm-numberformat",
+    "name": "erosson/number-suffix",
     "summary": "Format large numbers in several human-readable ways, like swarmsim.com does.",
     "license": "MIT",
     "version": "1.0.0",

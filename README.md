@@ -1,4 +1,4 @@
-# erosson/number-suffixes
+# erosson/number-suffix
 
 Format numbers with nice human-readable suffixes.
 
