@@ -1,16 +1,27 @@
 module NumberSuffix exposing
-    ( Locale
-    , format
-    , formatInt
-    , scientificConfig
-    , standardConfig
-    , suffixAlphabetic
-    , suffixEngineering
-    , suffixLongScale
-    , suffixLongScaleShort
-    , suffixStandard
-    , suffixStandardShort
+    ( format, formatInt
+    , Config, standardConfig, scientificConfig, Locale
+    , suffixStandard, suffixStandardShort, suffixEngineering, suffixLongScale, suffixLongScaleShort, suffixAlphabetic
     )
+
+{-| Format numbers with fancy suffixes.
+
+
+# Formatting
+
+@docs format, formatInt
+
+
+# Configuration
+
+@docs Config, standardConfig, scientificConfig, Locale
+
+
+# Suffix list configuration
+
+@docs suffixStandard, suffixStandardShort, suffixEngineering, suffixLongScale, suffixLongScaleShort, suffixAlphabetic
+
+-}
 
 import Array exposing (Array)
 import FormatNumber
@@ -46,18 +57,22 @@ suffixStandard =
     getListSuffix NumberSuffixData.standard
 
 
+suffixAlphabetic : Int -> String
 suffixAlphabetic =
     getListSuffix NumberSuffixData.alphabetic
 
 
+suffixStandardShort : Int -> String
 suffixStandardShort =
     getListSuffix NumberSuffixData.standardShort
 
 
+suffixLongScale : Int -> String
 suffixLongScale =
     getListSuffix NumberSuffixData.longScale
 
 
+suffixLongScaleShort : Int -> String
 suffixLongScaleShort =
     getListSuffix NumberSuffixData.longScaleShort
 
@@ -138,6 +153,15 @@ formatLocaleSigfigs locale sigfigs val =
         |> FormatNumber.format { locale | decimals = decimals }
 
 
+{-| Format numbers with fancy suffixes.
+
+    format standardConfig 12345 --> "12,345"
+
+    format standardConfig 1.23e10 --> "12.3 billion"
+
+    format { standardConfig | getSuffix = suffixStandardShort } 1.23e10 --> "12.3B"
+
+-}
 format : Config -> Float -> String
 format { getSuffix, sigfigs, locale, suffixDivisor, minSuffix } n =
     let
@@ -175,6 +199,8 @@ dropIntDecimals val =
             val
 
 
+{-| Format integers with fancy suffixes. See `format`.
+-}
 formatInt : Config -> Int -> String
 formatInt config =
     toFloat >> format config

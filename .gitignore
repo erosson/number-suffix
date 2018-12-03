@@ -2,3 +2,7 @@
 elm-stuff
 # elm-repl generated files
 repl-temp-*
+# ci environments install elm via node
+node_modules
+# https://github.com/stoeffel/elm-verify-examples#setup
+tests/VerifyExamples

@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build": "elm make && elm make --docs=build/docs.json",
+    "test": "elm-verify-examples && elm-test"
+  },
+  "dependencies": {
+    "elm": "^0.19.0-bugfix2",
+    "elm-test": "^0.19.0-rev3",
+    "elm-verify-examples": "^3.0.1"
+  }
+}
