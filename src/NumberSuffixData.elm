@@ -1,8 +1,23 @@
-module NumberSuffixData exposing (longScale, longScaleShort, standard, standardShort)
+module NumberSuffixData exposing (alphabetic, longScale, longScaleShort, standard, standardShort)
 
 -- pasted from https://github.com/erosson/swarm-numberformat/blob/master/static/standard-suffixes.json
 
 import Array
+
+
+aToZ =
+    List.range (Char.toCode 'a') (Char.toCode 'z') |> List.map Char.fromCode
+
+
+aaToZz =
+    aToZ
+        |> List.concatMap (\first -> aToZ |> List.map (\last -> String.fromList [ first, last ]))
+
+
+alphabetic =
+    Array.append
+        (standardShort |> Array.slice 0 5)
+        (Array.fromList aaToZz)
 
 
 standard =

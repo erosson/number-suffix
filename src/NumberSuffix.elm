@@ -4,6 +4,7 @@ module NumberSuffix exposing
     , formatInt
     , scientificConfig
     , standardConfig
+    , suffixAlphabetic
     , suffixEngineering
     , suffixLongScale
     , suffixLongScaleShort
@@ -43,6 +44,10 @@ getListSuffix suffixes digits =
 suffixStandard : Int -> String
 suffixStandard =
     getListSuffix NumberSuffixData.standard
+
+
+suffixAlphabetic =
+    getListSuffix NumberSuffixData.alphabetic
 
 
 suffixStandardShort =
