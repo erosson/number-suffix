@@ -1,5 +1,7 @@
 # erosson/number-suffix
 
+[![Build Status](https://travis-ci.org/erosson/number-suffix.svg?branch=master)](https://travis-ci.org/erosson/number-suffix)
+
 Format numbers with nice human-readable suffixes.
 
 This is an Elm port of the useful parts of https://github.com/erosson/swarm-numberformat.
