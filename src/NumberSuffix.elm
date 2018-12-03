@@ -19,6 +19,16 @@ module NumberSuffix exposing
 
 # Suffix list configuration
 
+You'll usually use one of the built-in suffix lists below, but you could write your own. Here's a modified scientific notation suffix generator:
+
+    suffixPow10 : Int -> String
+    suffixPow10 digits = " * 10 ^ " ++ String.fromInt digits
+
+    config : Config
+    config = { scientificConfig | getSuffix = suffixPow10 }
+
+    format config 1e6 --> "1.00 * 10 ^ 6"
+
 @docs suffixStandard, suffixStandardShort, suffixEngineering, suffixLongScale, suffixLongScaleShort, suffixAlphabetic
 
 -}
@@ -29,10 +39,15 @@ import FormatNumber.Locales exposing (usLocale)
 import NumberSuffixData
 
 
-type alias Locale =
-    FormatNumber.Locales.Locale
+{-| Configure how numbers are formatted.
 
+`getSuffix` returns a suffix, given a digit count for the number. See the [suffix functions](#suffixStandard) below.
 
+`sigfigs` is the number of significant figures shown.
+
+Below `minSuffix`, a comma-separated number is shown instead of a suffixed number.
+
+-}
 type alias Config =
     { getSuffix : Int -> String
     , locale : Locale
@@ -40,6 +55,27 @@ type alias Config =
     , suffixDivisor : Int
     , minSuffix : Float
     }
+
+
+{-| Format numbers differently based on the user's location and culture.
+
+See `cuducos/elm-format-number:FormatNumber.Locales`.
+
+This does not change the language suffixes are in, only the formatting of the
+numbers themselves. Consider this with a custom suffix list if you need complete
+internationalization.
+
+    import FormatNumber.Locales
+
+    spanishConfig : Config
+    spanishConfig = { standardConfig | locale = FormatNumber.Locales.spanishLocale }
+
+    format standardConfig 1234 --> "1,234"
+    format spanishConfig 1234 --> "1.234"
+
+-}
+type alias Locale =
+    FormatNumber.Locales.Locale
 
 
 getListSuffix : Array String -> Int -> String
@@ -52,26 +88,74 @@ getListSuffix suffixes digits =
             suffixEngineering digits
 
 
+{-| Standard suffixes.
+
+    config : Config
+    config = { standardConfig | getSuffix = suffixStandard }
+    -- `config = standardConfig` would work too; this is the default
+
+    format config 1e3 --> "1,000"
+    format config 1e5 --> "100 thousand"
+    format config 1e6 --> "1.00 million"
+    format config 1e9 --> "1.00 billion"
+    format config 1e12 --> "1.00 trillion"
+    format config 1e15 --> "1.00 quadrillion"
+
+-}
 suffixStandard : Int -> String
 suffixStandard =
     getListSuffix NumberSuffixData.standard
 
 
-suffixAlphabetic : Int -> String
-suffixAlphabetic =
-    getListSuffix NumberSuffixData.alphabetic
+{-| Abbreviated standard suffixes.
 
+    config : Config
+    config = { standardConfig | getSuffix = suffixStandardShort }
 
+    format config 1e3 --> "1,000"
+    format config 1e5 --> "100K"
+    format config 1e6 --> "1.00M"
+    format config 1e9 --> "1.00B"
+    format config 1e12 --> "1.00T"
+    format config 1e15 --> "1.00Qa"
+
+-}
 suffixStandardShort : Int -> String
 suffixStandardShort =
     getListSuffix NumberSuffixData.standardShort
 
 
+{-| Long-scale suffixes.
+
+    config : Config
+    config = { standardConfig | getSuffix = suffixLongScale }
+
+    format config 1e3 --> "1,000"
+    format config 1e5 --> "100 thousand"
+    format config 1e6 --> "1.00 million"
+    format config 1e9 --> "1.00 milliard"
+    format config 1e12 --> "1.00 billion"
+    format config 1e15 --> "1.00 billiard"
+
+-}
 suffixLongScale : Int -> String
 suffixLongScale =
     getListSuffix NumberSuffixData.longScale
 
 
+{-| Abbreviated long-scale suffixes.
+
+    config : Config
+    config = { standardConfig | getSuffix = suffixLongScaleShort }
+
+    format config 1e3 --> "1,000"
+    format config 1e5 --> "100K"
+    format config 1e6 --> "1.00M"
+    format config 1e9 --> "1.00Md"
+    format config 1e12 --> "1.00B"
+    format config 1e15 --> "1.00Bd"
+
+-}
 suffixLongScaleShort : Int -> String
 suffixLongScaleShort =
     getListSuffix NumberSuffixData.longScaleShort
@@ -86,6 +170,21 @@ suffixScientific digits =
         "e" ++ String.fromInt digits
 
 
+{-| Engineering notation.
+
+Unlike scientific notation, engineering notation numbers are always divisible by 3.
+
+    config : Config
+    config = { standardConfig | getSuffix = suffixEngineering }
+
+    format config 1e3 --> "1,000"
+    format config 1e5 --> "100E3"
+    format config 1e6 --> "1.00E6"
+    format config 1e7 --> "10.0E6"
+    format config 1e8 --> "100E6"
+    format config 1e9 --> "1.00E9"
+
+-}
 suffixEngineering : Int -> String
 suffixEngineering digits =
     if digits <= 3 then
@@ -95,6 +194,31 @@ suffixEngineering digits =
         "E" ++ String.fromInt (digits // 3 * 3)
 
 
+{-| Alphabetic suffixes.
+
+    config : Config
+    config = { standardConfig | getSuffix = suffixAlphabetic }
+
+    format config 1e3 --> "1,000"
+    format config 1e5 --> "100K"
+    format config 1e6 --> "1.00M"
+    format config 1e9 --> "1.00B"
+    format config 1e12 --> "1.00T"
+    format config 1e15 --> "1.00aa"
+    format config 1e18 --> "1.00ab"
+
+-}
+suffixAlphabetic : Int -> String
+suffixAlphabetic =
+    getListSuffix NumberSuffixData.alphabetic
+
+
+{-| Default formatting configuration.
+
+By default, we use standard suffixes, US locale, 3 significant figures,
+thousands grouping (suffixDivisor=3), and show no suffixes for values below 100,000.
+
+-}
 standardConfig : Config
 standardConfig =
     { getSuffix = suffixStandard
@@ -108,6 +232,18 @@ standardConfig =
     }
 
 
+{-| Scientific notation formatting configuration.
+
+    config : Config
+    config = scientificConfig
+
+    format config 1.0e3 --> "1,000"
+    format config 1.0e6 --> "1.00e6"
+    format config 1.0e7 --> "1.00e7"
+    format config 1.0e8 --> "1.00e8"
+    format config 1.0e9 --> "1.00e9"
+
+-}
 scientificConfig : Config
 scientificConfig =
     { standardConfig
@@ -159,7 +295,9 @@ formatLocaleSigfigs locale sigfigs val =
 
     format standardConfig 1.23e10 --> "12.3 billion"
 
-    format { standardConfig | getSuffix = suffixStandardShort } 1.23e10 --> "12.3B"
+    config : Config
+    config = { standardConfig | getSuffix = suffixStandardShort }
+    format config 1.23e10 --> "12.3B"
 
 -}
 format : Config -> Float -> String

@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "build": "elm make && elm make --docs=build/docs.json",
+    "build": "mkdir -p build && elm make && elm make --docs=build/docs.json",
+    "build:ci": "yarn test && yarn build",
     "test": "elm-verify-examples && elm-test"
   },
   "dependencies": {

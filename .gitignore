@@ -6,3 +6,5 @@ repl-temp-*
 node_modules
 # https://github.com/stoeffel/elm-verify-examples#setup
 tests/VerifyExamples
+
+/build
