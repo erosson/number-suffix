@@ -34,6 +34,12 @@ testFormat config val str =
             val |> S.format config |> Expect.equal str
 
 
+testFormatSigExp config sig exp str =
+    test ("formatSigExp " ++ S.formatSigExp config sig exp ++ " == \"" ++ str ++ "\"") <|
+        \_ ->
+            S.formatSigExp config sig exp |> Expect.equal str
+
+
 suite : Test
 suite =
     describe "suite"
@@ -168,5 +174,15 @@ suite =
             , run 9900 "9.90 thousand"
             , run 9995 "9.99 thousand"
             , run 1000 "1.00 thousand"
+            ]
+        , describe "formatSigExp" <|
+            let
+                run =
+                    testFormat { standardConfig | minSuffix = 0 }
+            in
+            [ testFormatSigExp standardConfig 0 0 "0"
+            , testFormatSigExp standardConfig 1 0 "1"
+            , testFormatSigExp standardConfig 1.2345 21 "1.23 sextillion"
+            , testFormatSigExp standardConfig 1.2345 1000 "12.3E999"
             ]
         ]

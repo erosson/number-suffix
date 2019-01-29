@@ -1,5 +1,5 @@
 module NumberSuffix exposing
-    ( format, formatInt
+    ( format, formatInt, formatSigExp
     , Config, standardConfig, scientificConfig, Locale
     , suffixStandard, suffixStandardShort, suffixEngineering, suffixLongScale, suffixLongScaleShort, suffixAlphabetic
     )
@@ -9,7 +9,7 @@ module NumberSuffix exposing
 
 # Formatting
 
-@docs format, formatInt
+@docs format, formatInt, formatSigExp
 
 
 # Configuration
@@ -301,24 +301,35 @@ formatLocaleSigfigs locale sigfigs val =
 
 -}
 format : Config -> Float -> String
-format { getSuffix, sigfigs, locale, suffixDivisor, minSuffix } n =
+format config n =
     let
-        fdigits =
+        exp =
             countDigits n - 1
 
+        sig =
+            n / toFloat (10 ^ exp)
+    in
+    formatSigExp config sig exp
+
+
+formatSigExp : Config -> Float -> Int -> String
+formatSigExp { getSuffix, sigfigs, locale, suffixDivisor, minSuffix } sig0 exp =
+    let
         formatLocale =
             formatLocaleSigfigs locale sigfigs
 
-        significand =
-            -- The below `x // y * y` looks silly at first, but it's integer division.
-            -- This adjusts the significand to the nearest 1000 (for suffixDivisor=3).
-            n / (10 ^ ((fdigits // suffixDivisor) * suffixDivisor |> toFloat))
+        sig =
+            sig0 * toFloat (10 ^ (exp |> abs |> Basics.remainderBy suffixDivisor))
+
+        -- n could hit infinity for a large exponent; that's fine
+        n =
+            sig0 * toFloat (10 ^ exp)
     in
     if abs n < minSuffix then
-        formatLocale n |> dropIntDecimals
+        n |> formatLocale |> dropIntDecimals
 
     else
-        formatLocale significand ++ getSuffix fdigits
+        formatLocale sig ++ getSuffix exp
 
 
 {-| for example, `dropZeroDecimals "3.00" = "3"`
