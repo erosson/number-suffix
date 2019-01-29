@@ -312,6 +312,17 @@ format config n =
     formatSigExp config sig exp
 
 
+{-| Format a significand and an exponent.
+
+    formatSigExp standardConfig 12.345 3 --> "12,345"
+
+    formatSigExp standardConfig 1.23 10 --> "12.3 billion"
+
+    config : Config
+    config = { standardConfig | getSuffix = suffixStandardShort }
+    formatSigExp config 1.23 10 --> "12.3B"
+
+-}
 formatSigExp : Config -> Float -> Int -> String
 formatSigExp { getSuffix, sigfigs, locale, suffixDivisor, minSuffix } sig0 exp =
     let
